@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Extended Cloud Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            line-height: 1.5;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+        input, textarea, button {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 1rem;
+        }
+        textarea {
+            resize: none;
+            height: 80px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h2>Extended Cloud Form</h2>
+    <form id="form">
+        <input type="text" id="name" placeholder="Enter Name" required />
+        <input type="email" id="email" placeholder="Enter Email" required />
+        <input type="tel" id="phone" placeholder="Enter Phone Number" pattern="[0-9]{10}" required />
+        <input type="text" id="address" placeholder="Enter Address" />
+        <textarea id="message" placeholder="Enter Your Message"></textarea>
+        <button type="submit">Submit</button>
+    </form>
+
+    <h3>Submitted Data:</h3>
+    <div id="data"></div>
+
+    <script>
+        // Submit Form (POST request)
+        document.getElementById('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const message = document.getElementById('message').value;
+
+            const response = await fetch('/api/form', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, phone, address, message })
+            });
+
+            if (response.ok) {
+                alert('Form submitted successfully!');
+                loadData(); // Refresh data after submission
+            } else {
+                alert('Error submitting form.');
+            }
+        });
+
+        // Load Data (GET request)
+        async function loadData() {
+            const response = await fetch('/api/form');
+            if (response.ok) {
+                const data = await response.json();
+                const display = data.map(entry => `
+                    <p><strong>${entry.name}</strong> (${entry.email})</p>
+                    <p>Phone: ${entry.phone}</p>
+                    <p>Address: ${entry.address}</p>
+                    <p>Message: ${entry.message}</p>
+                    <hr />
+                `).join('');
+                document.getElementById('data').innerHTML = display;
+            } else {
+                document.getElementById('data').innerHTML = '<p>Error loading data.</p>';
+            }
+        }
+
+        loadData(); // Load data when page opens
+    </script>
+</body>
+</html>
